@@ -208,6 +208,10 @@ class Instance(models.Model):
     @cached_property
     def formats(self):
         return self.proxy.get_image_formats()
+    
+    @cached_property
+    def os_info(self):
+        return self.proxy.osinfo()
 
 
 class MigrateInstance(models.Model):

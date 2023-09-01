@@ -1,0 +1,45 @@
+{% load i18n %}
+{% load bootstrap_icons %}
+<div class="tab-pane tab-pane-bordered active" id="instances" role="tabpanel">
+    <h3 class="page-header">{% trans "Instances" %}</h3>
+    <table class="table table-hover sortable-theme-bootstrap" data-sortable>
+    <thead>
+        <tr>
+            <th scope="col">{% trans "Compute" %}</th>
+            <th scope="col">{% trans "Name" %}</th>
+            <th scope="col">{% trans "OS" %}</th>
+            <th scope="col">{% trans "IP" %}</th>
+        </tr>
+    </thead>
+    <tbody class="searchable">
+    {% for compute in computes %}
+        {% if compute.status is True and compute.instance_set.count > 0 %}
+            {% for instance in compute.instance_set.all %}
+                <tr>
+                    <td>{{compute.name}}</td>
+                    <td>{{instance.name}}</td>
+                    {% if instance.status == 1 %}
+                        {% if instance.guest_agent_ready %}
+                        <td id="{{instance.id}}-os">{{instance.os_info.name}} - {{instance.os_info.version}}</td>
+                        <td>
+                            {% for network in instance.networks %}
+                                {% for ipv4 in network.ipv4 %}
+                                    <p>{{ ipv4 }}</p>
+                                {% endfor %}
+                            {% endfor%}
+                        </td>
+                        {% else %}
+                            <td id="{{instance.id}}-os">{% trans "Guest agent is not running" %}</td>
+                            <td><p>{% trans "Guest agent is not running" %}</p></td>
+                        {% endif %}
+                    {% else %}
+                        <td id="{{instance.id}}-os">{% trans "Instance is not running" %}</td>
+                        <td><p>{% trans "Instance is not running" %}</p></td>
+                    {% endif %}
+                </tr>
+            {% endfor %}
+        {% endif %}
+        </tbody>
+    {% endfor %}
+    </table>
+</div>

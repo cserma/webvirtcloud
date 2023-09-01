@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+{% load bootstrap_icons %}
+
+{% block title %}{% trans "Bulk Operations" %}{% endblock %}
+{% block style %}
+    <link rel="stylesheet" href="{% static 'css/sortable-theme-bootstrap.css' %}" />
+{% endblock %}
+{% block page_heading %}{% trans "Bulk Operations" %}{% endblock page_heading %}
+
+
+{% block content %}
+
+    <div id="mainTabMenu">
+        <!-- Nav tabs -->
+        <ul class="nav nav-pills nav-fill" id="navbtn" role="tablist" aria-label="Instance actions">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link action-button active" id="instances-tab" aria-controls="instances" data-bs-toggle="pill" data-bs-target="#instances" type="button" role="tab" aria-selected="true">
+                    <span id="action-block" aria-hidden="true">{% bs_icon 'pc-display-horizontal' size='2em' %}</span>
+                    {% trans "Instances" %}
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link action-button" id="disks-tab" aria-controls="disks" data-bs-toggle="pill" data-bs-target="#disks" type="button" role="tab" aria-selected="true">
+                    <span id="action-block" aria-hidden="true">{% bs_icon 'device-hdd' size='2em'%} </span>
+                    {% trans "Disks" %}
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link action-button" id="snapshots-tab" aria-controls="snapshots" data-bs-toggle="pill" data-bs-target="#snapshots" type="button" role="tab" aria-selected="false">
+                    <span id="action-block" aria-hidden="true">{% bs_icon 'camera' size='2em'%} </span>
+                    {% trans "Snapshots" %}
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link action-button" id="migrations-tab" aria-controls="migrations" data-bs-toggle="pill" data-bs-target="#migrations" type="button" role="tab" aria-selected="false">
+                    <span id="action-block" aria-hidden="true">{% bs_icon 'box-arrow-in-right' size='2em'%} </span>
+                    {% trans "Migration" %}
+                </button>
+            </li>
+        </ul>
+        <!-- Tab panes -->
+        <div class="tab-content" id="mainTabMenuContent">
+            {% include 'bulkoperations/instances.html' %}
+            {% include 'bulkoperations/disks.html' %}
+            {% include 'bulkoperations/snapshots.html' %}
+            {% include 'bulkoperations/migration.html' %}
+        </div>
+    </div> 
+    
+{% endblock content %}
+{% block script %}
+<script>
+    // Part for info button popovers in disks tab
+    $(document).ready(function(){
+        $('[data-bs-toggle="popover"]').popover();
+    });
+    // For selection in migration page
+    var head = document.getElementsByName('head_checkbox');
+    var body = document.getElementsByName('body_checkbox');
+    var powerOnInstances = document.getElementById('powerOnInstances');
+    var powerOffInstances = document.getElementById('powerOffInstances');
+    var migrateInstance = document.getElementById('migrateInstance');
+    var deleteInstance = document.getElementById('deleteInstance');
+    var selectedInstances = 0;
+    var activeInstances = 0;
+    var inactiveInstances = 0;
+
+    head[0].onclick = function() {
+        let boolVal = head[0].checked;
+        for(let i=0 ; i < body.length ; i++){
+            if (body[i].checked != true && boolVal == true){
+                body[i].click();
+            }else if(body[i].checked == true && boolVal == false){
+                body[i].click();
+            }
+        };
+    };
+    function statusCheck(item) {
+        var status = item.parentElement.parentElement.children[3].children[0].className;
+        if (item.checked == false){
+            selectedInstances -= 1;
+            if (status == "badge bg-danger"){
+                inactiveInstances--;
+            } else {
+                activeInstances--;
+            }
+            if (selectedInstances == 0) {
+                powerOnInstances.className = "btn btn-secondary disabled";
+                powerOffInstances.className = "btn btn-secondary disabled";
+            }
+        }else {
+            selectedInstances += 1;
+            if (status == "badge bg-danger"){
+                inactiveInstances++;
+            } else {
+                activeInstances++;
+            }
+            powerOnInstances.className = "btn btn-success"
+            powerOffInstances.className = "btn btn-danger"
+        }
+        if (selectedInstances > 0){
+            deleteInstance.className = "btn btn-danger"
+            migrateInstance.className = "btn btn-primary"
+        }else {
+            deleteInstance.className += " disabled"
+            migrateInstance.className += " disabled"
+        }
+        if(activeInstances <= 0) powerOffInstances.className = "btn btn-secondary disabled";
+        if(inactiveInstances <= 0) powerOnInstances.className = "btn btn-secondary disabled";
+    }
+    // end
+    function bulkStart() {
+        instancesToStart = []
+        for(let i=0 ; i < body.length ; i++){
+            if (body[i].checked == true) {
+                instancesToStart.push(body[i].id)
+            }
+        };
+        const request = new Request(
+            'bulkStart/',
+            {
+                method: 'POST',
+                headers: {'X-CSRFToken': Cookies.get('csrftoken'),
+                          'Accept': 'application/json',
+                          'Content-Type': 'application/json'},
+                mode: 'same-origin',
+                body: instancesToStart,
+            }
+        );
+        fetch(request).then(function(response) {
+            location.reload(true)
+        });
+    }
+    function bulkForceOff() {
+        instancesToStop = []
+        for(let i=0 ; i < body.length ; i++){
+            if (body[i].checked == true) {
+                instancesToStop.push(body[i].id)
+            }
+        };
+        const request = new Request(
+            'bulkForceOff/',
+            {
+                method: 'POST',
+                headers: {'X-CSRFToken': Cookies.get('csrftoken'),
+                          'Accept': 'application/json',
+                          'Content-Type': 'application/json'},
+                mode: 'same-origin',
+                body: instancesToStop,
+            }
+        );
+        fetch(request).then(function(response) {
+            location.reload(true)
+        });
+    }
+</script>
+{% endblock script %}

@@ -1,0 +1,86 @@
+{% load i18n %}
+{% load bootstrap_icons %}
+<div class="tab-pane tab-pane-bordered my-0" id="snapshots" role="tabpanel">
+    <h3 class="page-header">{% trans "Snapshots" %}</h3>
+    <table class="table table-hover sortable-theme-bootstrap" data-sortable>
+    <thead>
+        <tr>
+            <th scope="col">{% trans "Host" %}</th>
+            <th scope="col">{% trans "Instance" %}</th>
+            <th scope="col">{% trans "Date" %}</th>
+            <th scope="col">{% trans "Name" %}</th>
+            <th scope="col" class="d-none d-sm-table-cell">{% trans "Type"%}</th>
+            <th scope="col" scope="colgroup" colspan="2" >{% trans "Actions" %}</th>
+        </tr>
+    </thead>
+    <tbody class="searchable">
+    {% for compute in computes %}
+        {% if compute.status is True and compute.instance_set.count > 0 %}
+            {% for instance in compute.instance_set.all %}
+                {% for ext_snap in instance.external_snapshots %}
+                    <tr>
+                        <td>{{compute.name}}</td>
+                        <td>{{instance.name}}</td>
+                        <td>{{ ext_snap.date|date:"M d H:i:s" }}</td>
+                        <td><strong>{{ ext_snap.name }}</strong></td>
+                        <td>({% trans "External" %}) - {{ ext_snap.description }}</td>
+                        <td style="width:30px;">
+                            <form action="{% url 'instances:revert_external_snapshot' instance.id %}" method="post" role="form" aria-label="Restore external snapshot form">
+                                {% csrf_token %}
+                                <input type="hidden" name="name" value="{{ ext_snap.name }}">
+                                <input type="hidden" name="date" value="{{ ext_snap.date }}">
+                                <input type="hidden" name="desc" value="{{ ext_snap.description }}">
+                                <button type="submit" class="btn btn-sm btn-primary" name="revert_external_snapshot" title="{% trans 'Revert to this Snapshot' %}" onclick="return confirm('You are going to lose your unsaved work by reverting to this snapshot state. Are you sure?')">
+                                        <span>{% bs_icon 'download' %} </span>
+                                </button>
+                            </form>
+                        </td>
+                        <td style="width:30px;">
+                            <form action="{% url 'instances:delete_external_snapshot' instance.id %}" method="post" role="form" aria-label="Delete external snapshot form">{% csrf_token %}
+                                <input type="hidden" name="name" value="{{ ext_snap.name }}">
+                                <button type="submit" class="btn btn-sm btn-danger" name="delete_external_snapshot" title="{% trans 'Delete Snapshot' %}" onclick="return confirm('You are about to delete this snapshot and merge it with base image. Are you sure?')">
+                                    {% bs_icon 'trash' %}
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+                {% for snap in instance.snapshots %}
+                    <tr>
+                        <td>{{compute.name}}</td>
+                        <td>{{instance.name}}</td>
+                        <td>{{ snap.date|date:"M d H:i:s" }}</td>
+                        <td><strong>{{ snap.name }}</strong></td>
+                        <td>({% trans "Internal" %}) - {{ snap.description }}</td>
+                        <td style="width:30px;">
+                            <form action="{% url 'instances:revert_snapshot' instance.id %}" method="post" role="form" aria-label="Restore snapshot form">
+                                {% csrf_token %}
+                                <input type="hidden" name="name" value="{{ snap.name }}">
+                                {% if instance.status == 5 %}
+                                    <button type="submit" class="btn btn-sm btn-primary" name="revert_snapshot" title="{% trans 'Revert to this Snapshot' %}" onclick="return confirm('Are you sure?')">
+                                            <span>{% bs_icon 'download' %} </span>
+                                    </button>
+                                {% else %}
+                                    <button type="button" class="btn btn-sm btn-primary disabled"
+                                            title="{% trans "To restore snapshots you need Power Off the instance." %}">
+                                            <span>{% bs_icon 'download' %} </span>
+                                    </button>
+                                {% endif %}
+                            </form>
+                        </td>
+                        <td style="width:30px;">
+                            <form action="{% url 'instances:delete_snapshot' instance.id %}" method="post" role="form" aria-label="Delete snapshot form">{% csrf_token %}
+                                <input type="hidden" name="name" value="{{ snap.name }}">
+                                <button type="submit" class="btn btn-sm btn-danger" title="{% trans 'Delete Snapshot' %}" onclick="return confirm('{% trans "Are you sure?" %}')">
+                                    {% bs_icon 'trash' %}
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            {% endfor %}
+        {% endif %}
+        </tbody>
+    {% endfor %}
+</table>
+</div>

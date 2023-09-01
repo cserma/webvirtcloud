@@ -47,7 +47,7 @@ body {
     padding: 15px 0;
     font-weight: 400;
     font-size: 14px;
-    width: 65px;
+    /* width: 65px; */
 }
 
 .action-button {
