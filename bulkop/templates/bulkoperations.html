@@ -11,7 +11,6 @@
 
 
 {% block content %}
-
     <div id="mainTabMenu">
         <!-- Nav tabs -->
         <ul class="nav nav-pills nav-fill" id="navbtn" role="tablist" aria-label="Instance actions">
@@ -40,6 +39,8 @@
                 </button>
             </li>
         </ul>
+
+        {% include 'search_block.html' %}
         <!-- Tab panes -->
         <div class="tab-content" id="mainTabMenuContent">
             {% include 'bulkoperations/instances.html' %}
@@ -156,4 +157,5 @@
         });
     }
 </script>
+<script src="/static/js/filter-table.js"></script>
 {% endblock script %}
