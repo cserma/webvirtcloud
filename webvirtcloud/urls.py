@@ -26,6 +26,7 @@ urlpatterns = [
     path("admin/", include(("admin.urls", "admin"), namespace="admin")),
     path("accounts/", include("accounts.urls")),
     path("appsettings/", appsettings, name="appsettings"),
+    path("bulkop/", include("bulkop.urls")),
     path("computes/", include("computes.urls")),
     path("console/", console, name="console"),
     path("datasource/", include("datasource.urls")),

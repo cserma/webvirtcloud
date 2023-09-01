@@ -1,0 +1,63 @@
+{% load i18n %}
+{% load bootstrap_icons %}
+<div class="tab-pane tab-pane-bordered" id="disks" role="tabpanel">
+    <h3 class="page-header">{% trans "Snapshots" %}</h3>
+    <table class="table table-hover sortable-theme-bootstrap" data-sortable>
+    <thead>
+        <tr>
+            <th scope="col">{% trans "Host" %}</th>
+            <th scope="col">{% trans "Instance" %}</th>
+            <th scope="col">{% trans "Used/Size" %}</th>
+            <th scope="col">{% trans "Type"%}</th>
+            <th scope="col">{% trans "Path" %}</th>
+            <th scope="col">{% trans "Device" %}</th>
+        </tr>
+    </thead>
+    <tbody class="searchable">
+    {% for compute in computes %}
+        {% if compute.status is True and compute.instance_set.count > 0 %}
+            {% for instance in compute.instance_set.all %}
+                {% for disk in instance.disks %}
+                    <tr>
+                        <td>{{compute.name}}</td>
+                        <td>{{instance.name}}</td>
+                        {% if disk.storage is None %}
+                            <td colspan="4">
+                                <div class="alert alert-danger">
+                                    {% trans "Error getting disk info" %}
+                                </div>
+                            </td>
+                        {% else %}
+                            <td>{{ disk.used | filesizeformat}}/{{ disk.size | filesizeformat }}</td>
+                            <td>{{ disk.storage }}</td>
+                            <td title="{{ disk.path }}">{{ disk.path|slice:"0:25" }}...</td>
+                        {% endif %}
+                        <td>
+                            {{ disk.dev }}
+                            <button type="submit" class="btn btn-sm btn-secondary"
+                                    name="details{{ forloop.counter0 }}"
+                                    title="{% trans 'Details' %}"
+                                    tabindex="1"
+                                    data-trigger="focus"
+                                    data-bs-toggle="popover"
+                                    data-bs-html="true"
+                                    data-bs-content="<strong>Bus:</strong> {{ disk.bus }} <br/>
+                                                    <strong>Format:</strong> {{ disk.format }} <br/>
+                                                    <strong>Cache:</strong> {{ disk.cache }} <br/>
+                                                    <strong>Serial:</strong> {{ disk.serial }} <br/>
+                                                    <strong>Readonly:</strong> {{ disk.readonly }} <br/>
+                                                    <strong>Shareable:</strong> {{ disk.shareable }}</br>
+                                                    <strong>IO Mode:</strong> {{ disk.io }} <br/>
+                                                    <strong>Discard:</strong> {{ disk.discard }} <br/>
+                                                    <strong>Detect Zeroes:</strong> {{ disk.detect_zeroes }}">
+                                <span>{% bs_icon 'info' %} </span>
+                            </button>
+                        </td>
+                    </tr>
+                {% endfor %}
+            {% endfor %}
+        {% endif %}
+        </tbody>
+    {% endfor %}
+</table>
+</div>
