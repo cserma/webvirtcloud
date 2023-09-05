@@ -24,8 +24,8 @@
                 {% for instance in compute.instance_set.all %}
                     <tr>
                         <td><input name="body_checkbox" id="{{instance.id}}" type="checkbox" onchange="statusCheck(this)"></td>
-                        <td>{{ compute.name }}</td>
-                        <td>{{ instance.name }}</td>
+                        <td><a class="link-primary" href="{% url 'overview' compute.id %}">{{ compute.name }}</a></td>
+                        <td><a class="link-primary" href="{% url 'instances:instance' instance.id %}">{{ instance.name }}</a></td>
                         <td>
                         {% if instance.status == 5 %}
                             <span class="badge bg-danger">{% trans "Off" %}</span>
@@ -36,6 +36,8 @@
                         {% if instance.status == 3 %}
                             <span class="badge bg-warning">{% trans "Suspend" %}</span>
                         {% endif %}
+                        <a class="invisible" name="poweron" href="{% url 'bulkop:poweron' instance.id %}"></a>
+                        <a class="invisible" name="forceoff" href="{% url 'bulkop:forceoff' instance.id %}"></a>
                         </td>
                     </tr>
                 {% endfor %}

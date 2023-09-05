@@ -19,8 +19,8 @@
             {% for instance in compute.instance_set.all %}
                 {% for disk in instance.disks %}
                     <tr>
-                        <td>{{compute.name}}</td>
-                        <td>{{instance.name}}</td>
+                        <td><a class="link-primary" href="{% url 'overview' compute.id %}">{{ compute.name }}</a></td>
+                        <td><a class="link-primary" href="{% url 'instances:instance' instance.id %}">{{ instance.name }}</a></td>
                         {% if disk.storage is None %}
                             <td colspan="4">
                                 <div class="alert alert-danger">
