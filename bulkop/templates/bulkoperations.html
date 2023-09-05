@@ -53,9 +53,11 @@
 {% endblock content %}
 {% block script %}
 <script>
-    // Part for info button popovers in disks tab
-    $(document).ready(function(){
-        $('[data-bs-toggle="popover"]').popover();
+    document.addEventListener("DOMContentLoaded", function(event) {
+        var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
+        var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+        return new bootstrap.Popover(popoverTriggerEl)
+        })
     });
     // For selection in migration page
     var head = document.getElementsByName('head_checkbox');
