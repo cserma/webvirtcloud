@@ -7,10 +7,16 @@
 {% block style %}
     <link rel="stylesheet" href="{% static 'css/sortable-theme-bootstrap.css' %}" />
 {% endblock %}
-{% block page_heading %}{% trans "Bulk Operations" %}{% endblock page_heading %}
+{% block page_heading %}
+    {% trans "Bulk Operations" %}
+    <a href="#" class="link-primary" onclick="location.reload(true)" title={% trans "Refresh" %}>
+        {% bs_icon 'repeat'%}
+    </a>
+{% endblock page_heading %}
 
 
 {% block content %}
+    {% include 'pleasewaitdialog.html' %}
     <div id="mainTabMenu">
         <!-- Nav tabs -->
         <ul class="nav nav-pills nav-fill" id="navbtn" role="tablist" aria-label="Instance actions">
@@ -116,6 +122,7 @@
     // end
     function bulkStart() {
         instancesToStart = []
+        showPleaseWaitDialog()
         for(let i=0 ; i < body.length ; i++){
             if (body[i].checked == true) {
                 instancesToStart.push(body[i].id)
@@ -138,6 +145,7 @@
     }
     function bulkForceOff() {
         instancesToStop = []
+        showPleaseWaitDialog()
         for(let i=0 ; i < body.length ; i++){
             if (body[i].checked == true) {
                 instancesToStop.push(body[i].id)

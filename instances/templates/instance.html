@@ -38,8 +38,8 @@
                 {% endif %}>{% bs_icon 'broadcast' size='1em' %}
             </span>
             |
-            {% if instance.snapshots %}
-                {% bs_icon 'camera'%} <i title="There are {{ instance.snapshots|length }} snapshot(s)"></i>
+            {% if instance.snapshots or instance.external_snapshots %}
+                <i title="There are {% with len2=instance.snapshots|length %} {{ instance.external_snapshots|length|add:len2 }} {% endwith %} snapshot(s)">{% bs_icon 'camera'%} </i>
             |
             {% endif %}
             {% if instance.cur_vcpu %}
