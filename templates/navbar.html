@@ -26,16 +26,12 @@
             {% bs_icon 'wrench-adjustable' %}
           </a>
           <div class="dropdown-menu" aria-labelledby="administration">
-            <a class="dropdown-item" href="{% url 'bulkop:bulkop' %}">{% bs_icon 'collection' %} {% trans "Bulk Operaitons" %}</a>
+            <a class="dropdown-item" href="{% url 'bulkop:bulkop' %}">{% bs_icon 'collection' %} {% trans "Bulk Operations" %}</a>
             <a class="dropdown-item {% view_active request 'admin:user_list' %}" href="{% url 'admin:user_list' %}">{% bs_icon 'person-plus' %} {% trans "Users" %}</a>
             <a class="dropdown-item {% view_active request 'admin:group_list' %}" href="{% url 'admin:group_list' %}">{% bs_icon 'people-fill' %} {% trans "Groups" %}</a>
             <a class="dropdown-item {% view_active request 'admin:logs' %}" href="{% url 'admin:logs' %}">{% bs_icon 'card-list' %} {% trans "Logs" %}</a>
             <a class="dropdown-item {% view_active request 'appsettings' %}" href="{% url 'appsettings' %}">{% bs_icon 'gear-wide-connected' %} {% trans "Settings" %}</i></a>
           </div>
-        </li>
-        {% else %}
-        <li class="nav-item {% class_active request '^/bulkop' %}">
-          <a class="nav-link" href="{% url 'bulkop:bulkop' %}">{% bs_icon 'collection-fill' %} {% trans "Bulk Operaitons" %}</a>
         </li>
         {% endif %}
         <li class="nav-item dropdown {% class_active request '^/accounts' %}">
