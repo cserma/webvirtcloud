@@ -66,8 +66,9 @@
         })
     });
     // For selection in migration page
-    var head = document.getElementsByName('head_checkbox');
-    var body = document.getElementsByName('body_checkbox');
+    var migrationForm = document.getElementById('migrationForm');
+    var head = document.getElementsByClassName('head_checkbox');
+    var body = document.getElementsByClassName('body_checkbox');
     var powerOnInstances = document.getElementById('powerOnInstances');
     var powerOffInstances = document.getElementById('powerOffInstances');
     var migrateInstance = document.getElementById('migrateInstance');
@@ -121,50 +122,14 @@
     }
     // end
     function bulkStart() {
-        instancesToStart = []
         showPleaseWaitDialog()
-        for(let i=0 ; i < body.length ; i++){
-            if (body[i].checked == true) {
-                instancesToStart.push(body[i].id)
-            }
-        };
-        const request = new Request(
-            'bulkStart/',
-            {
-                method: 'POST',
-                headers: {'X-CSRFToken': Cookies.get('csrftoken'),
-                          'Accept': 'application/json',
-                          'Content-Type': 'application/json'},
-                mode: 'same-origin',
-                body: instancesToStart,
-            }
-        );
-        fetch(request).then(function(response) {
-            location.reload(true)
-        });
+        migrationForm.action = "{% url 'bulkop:bulkStart' %}"
+        migrationForm.submit();
     }
     function bulkForceOff() {
-        instancesToStop = []
         showPleaseWaitDialog()
-        for(let i=0 ; i < body.length ; i++){
-            if (body[i].checked == true) {
-                instancesToStop.push(body[i].id)
-            }
-        };
-        const request = new Request(
-            'bulkForceOff/',
-            {
-                method: 'POST',
-                headers: {'X-CSRFToken': Cookies.get('csrftoken'),
-                          'Accept': 'application/json',
-                          'Content-Type': 'application/json'},
-                mode: 'same-origin',
-                body: instancesToStop,
-            }
-        );
-        fetch(request).then(function(response) {
-            location.reload(true)
-        });
+        migrationForm.action = "{% url 'bulkop:bulkForceOff' %}"
+        migrationForm.submit();
     }
 </script>
 <script src="/static/js/filter-table.js"></script>
