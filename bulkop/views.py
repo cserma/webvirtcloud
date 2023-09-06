@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.http import HttpResponse
 from django.utils.translation import gettext_noop as _
@@ -19,46 +19,51 @@ def bulkop(request):
         .prefetch_related("instance_set__userinstance_set")
     )
 
-    if request.user.is_superuser or request.user.has_perm("instances.view_instances"):
+    if request.user.is_superuser:
         instances = Instance.objects.all().prefetch_related("userinstance_set")
     else:
         instances = Instance.objects.filter(
             userinstance__user=request.user
         ).prefetch_related("userinstance_set")
 
+    if not request.user.is_superuser:
+        return HttpResponse("404")
+        
     return render(
         request, "bulkoperations.html", {"computes": computes, "instances": instances}
     )
 
 def bulkStart(request):
     if request.method == 'POST':
-        selectedInstances = request.body.decode('utf-8').split(",")
-        for selectedInstance in selectedInstances:
-            tempInstance = Instance.objects.get(pk=int(selectedInstance))
-            if (tempInstance.status != 1):
-                if tempInstance.is_template:
-                    messages.warning(request, _("Templates cannot be started."))
-                else:
-                    tempInstance.proxy.start()
-                    addlogmsg(
-                        request.user.username, tempInstance.compute.name, tempInstance.name, _("Power On")
-                    )
-        return JsonResponse({'success': True})  
+        data = request.POST
+        for val in data:
+            if val.startswith('instance-'):
+                tempInstance = Instance.objects.get(pk=int(val[9:]))
+                if (tempInstance.status != 1):
+                    if tempInstance.is_template:
+                        messages.warning(request, _("Templates cannot be started."))
+                    else:
+                        tempInstance.proxy.start()
+                        addlogmsg(
+                            request.user.username, tempInstance.compute.name, tempInstance.name, _("Power On")
+                        )
+    return redirect(request.META.get("HTTP_REFERER"))
     
 def bulkForceOff(request):
     if request.method == 'POST':
-        selectedInstances = request.body.decode('utf-8').split(",")
-        for selectedInstance in selectedInstances:
-            tempInstance = Instance.objects.get(pk=int(selectedInstance))
-            if (tempInstance.status != 1):
-                if tempInstance.is_template:
-                    messages.warning(request, _("Templates cannot be shutdown."))
-                else:
-                    tempInstance.proxy.force_shutdown()
-                    addlogmsg(
-                        request.user.username, tempInstance.compute.name, tempInstance.name, _("Force Off")
-                    )
-        return JsonResponse({'success': True}) 
+        data = request.POST
+        for val in data:
+            if val.startswith('instance-'):
+                tempInstance = Instance.objects.get(pk=int(val[9:]))
+                if (tempInstance.status != 5):
+                    if tempInstance.is_template:
+                        messages.warning(request, _("Templates cannot be shutdown."))
+                    else:
+                        tempInstance.proxy.force_shutdown()
+                        addlogmsg(
+                            request.user.username, tempInstance.compute.name, tempInstance.name, _("Force Off")
+                        )
+    return redirect(request.META.get("HTTP_REFERER"))
     
 def poweron(request, pk):
     instance = Instance.objects.get(pk=int(pk))

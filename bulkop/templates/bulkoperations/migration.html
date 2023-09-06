@@ -1,48 +1,48 @@
 {% load i18n %}
 {% load bootstrap_icons %}
 <div class="tab-pane tab-pane-bordered" id="migrations" role="tabpanel">
-    <h3 class="page-header">{% trans "Migration" %}</h3>
-    <table class="table table-hover sortable-theme-bootstrap" data-sortable>
-    <div class="btn-group mb-2" style="float:right">
-        <a id="powerOnInstances" class="btn btn-secondary disabled" title="{% trans "Start" %}" onclick="bulkStart()">{% bs_icon 'play'%}</a>
-        <a id="powerOffInstances" class="btn btn-secondary disabled" title="{% trans "Stop" %}" onclick="bulkForceOff()">{% bs_icon 'stop'%}</a>
-        <a id="migrateInstance" class="btn btn-primary disabled" title="{% trans "Migrate" %}">{% bs_icon 'box-arrow-in-right'%}</a>
-        <a id="deleteInstance" class="btn btn-danger disabled" title="{% trans "Destroy" %}">{% bs_icon 'trash'%}</a>
-    </div>
-    
-    <thead>
-        <tr>
-            <th scope="col"><input name="head_checkbox" type="checkbox"></th>
-            <th scope="col">{% trans "Compute" %}</th>
-            <th scope="col">{% trans "Instance" %}</th>
-            <th scope="col">{% trans "Status" %}</th>
-        </tr>
-    </thead>
-    {% for compute in computes %}
-        <tbody class="searchable">
-            {% if compute.status is True and compute.instance_set.count > 0 %}
-                {% for instance in compute.instance_set.all %}
-                    <tr>
-                        <td><input name="body_checkbox" id="{{instance.id}}" type="checkbox" onchange="statusCheck(this)"></td>
-                        <td><a class="link-primary" href="{% url 'overview' compute.id %}">{{ compute.name }}</a></td>
-                        <td><a class="link-primary" href="{% url 'instances:instance' instance.id %}">{{ instance.name }}</a></td>
-                        <td>
-                        {% if instance.status == 5 %}
-                            <span class="badge bg-danger">{% trans "Off" %}</span>
-                        {% endif %}
-                        {% if instance.status == 1 %}
-                            <span class="badge bg-success">{% trans "Active" %}</span>
-                        {% endif %}
-                        {% if instance.status == 3 %}
-                            <span class="badge bg-warning">{% trans "Suspend" %}</span>
-                        {% endif %}
-                        <a class="invisible" name="poweron" href="{% url 'bulkop:poweron' instance.id %}"></a>
-                        <a class="invisible" name="forceoff" href="{% url 'bulkop:forceoff' instance.id %}"></a>
-                        </td>
-                    </tr>
-                {% endfor %}
-            {% endif %}
-        </tbody>
-    {% endfor %}
-</table>
+    <form action="" id="migrationForm" method="POST">{% csrf_token %}
+        <h3 class="page-header">{% trans "Migration" %}</h3>
+        <table class="table table-hover sortable-theme-bootstrap" data-sortable>
+        <div class="btn-group mb-2" style="float:right">
+            <a id="powerOnInstances" class="btn btn-secondary disabled" title="{% trans "Start" %}" onclick="bulkStart()">{% bs_icon 'play'%}</a>
+            <a id="powerOffInstances" class="btn btn-secondary disabled" title="{% trans "Stop" %}" onclick="bulkForceOff()">{% bs_icon 'stop'%}</a>
+            <a id="migrateInstance" class="btn btn-primary disabled" title="{% trans "Migrate" %}">{% bs_icon 'box-arrow-in-right'%}</a>
+            <a id="deleteInstance" class="btn btn-danger disabled" title="{% trans "Destroy" %}">{% bs_icon 'trash'%}</a>
+        </div>
+        
+        <thead>
+            <tr>
+                <th scope="col"><input class="head_checkbox"  type="checkbox"></th>
+                <th scope="col">{% trans "Compute" %}</th>
+                <th scope="col">{% trans "Instance" %}</th>
+                <th scope="col">{% trans "Status" %}</th>
+            </tr>
+        </thead>
+        {% for compute in computes %}
+            <tbody class="searchable">
+                {% if compute.status is True and compute.instance_set.count > 0 %}
+                    {% for instance in compute.instance_set.all %}
+                        <tr>
+                            <td><input class="body_checkbox" name="instance-{{instance.id}}" type="checkbox" onchange="statusCheck(this)"></td>
+                            <td><a class="link-primary" href="{% url 'overview' compute.id %}">{{ compute.name }}</a></td>
+                            <td><a class="link-primary" href="{% url 'instances:instance' instance.id %}">{{ instance.name }}</a></td>
+                            <td>
+                            {% if instance.status == 5 %}
+                                <span class="badge bg-danger">{% trans "Off" %}</span>
+                            {% endif %}
+                            {% if instance.status == 1 %}
+                                <span class="badge bg-success">{% trans "Active" %}</span>
+                            {% endif %}
+                            {% if instance.status == 3 %}
+                                <span class="badge bg-warning">{% trans "Suspend" %}</span>
+                            {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% endif %}
+            </tbody>
+        {% endfor %}
+    </table>
+    </form>
 </div>
