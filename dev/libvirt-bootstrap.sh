@@ -631,6 +631,7 @@ install_ubuntu_post() {
         sed -i 's/#listen_tls/listen_tls/g' /etc/libvirt/libvirtd.conf
         sed -i 's/#listen_tcp/listen_tcp/g' /etc/libvirt/libvirtd.conf
         sed -i 's/#auth_tcp/auth_tcp/g' /etc/libvirt/libvirtd.conf
+        sed -i 's/#auth_unix_rw = "polkit"/auth_unix_rw = "none"/g' /etc/libvirt/libvirtd.conf
     else
         echoerror "/etc/libvirt/libvirtd.conf not found. Exiting..."
         exit 1
@@ -680,8 +681,10 @@ install_debian() {
     apt-get update || return 1
     if [ "$DISTRO_MAJOR_VERSION" -lt 10 ]; then
 	    apt-get -y install qemu-kvm libvirt-bin bridge-utils sasl2-bin python-guestfs supervisor || return 1
-    else
+    elif [ "$DISTRO_MAJOR_VERSION" -lt 12 ]; then
 	    apt-get -y install qemu qemu-kvm qemu-system qemu-utils libvirt-clients libvirt-daemon-system sasl2-bin python3-guestfs virtinst supervisor || return 1
+    else
+	    apt-get -y install qemu-system qemu-utils libvirt-clients libvirt-daemon-system sasl2-bin python3-guestfs virtinst supervisor || return 1
     fi
     return 0
 }
@@ -708,6 +711,7 @@ install_debian_post() {
         sed -i 's/#listen_tls/listen_tls/g' /etc/libvirt/libvirtd.conf
         sed -i 's/#listen_tcp/listen_tcp/g' /etc/libvirt/libvirtd.conf
         sed -i 's/#auth_tcp/auth_tcp/g' /etc/libvirt/libvirtd.conf
+        sed -i 's/#auth_unix_rw = "polkit"/auth_unix_rw = "none"/g' /etc/libvirt/libvirtd.conf
     else
         echoerror "/etc/libvirt/libvirtd.conf not found. Exiting..."
         exit 1
