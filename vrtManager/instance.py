@@ -1353,6 +1353,11 @@ class wvmInstance(wvmConnect):
         snap = self.instance.snapshotLookupByName(name, 0)
         snap_xml = snap.getXMLDesc(0)
         snapXML = ElementTree.fromstring(snap_xml)
+        snapshot_count = 1
+        snapshots = name.split('.')
+        snapshots = snapshots[0].split('s')
+        if len(snapshots) > 1:
+            snapshot_count = snapshots[1]
 
         self.start(flags=VIR_DOMAIN_START_PAUSED) if self.get_status() == 5 else None
         self.delete_all_disks()
@@ -1365,7 +1370,9 @@ class wvmInstance(wvmConnect):
         if not disks: disks = snapXML.findall('domain/devices/disk')
         for disk in disks:
             self.instance.updateDeviceFlags(ElementTree.tostring(disk).decode("UTF-8"))
-        name = name.replace("s1", "s2")
+        old_name = f"s{snapshot_count}"
+        new_name = f"s{int(snapshot_count)+1}"
+        name = name.replace(old_name, new_name, 1)
         self.create_external_snapshot(name, date, desc)
 
     def get_snapshot(self, flag=VIR_DOMAIN_SNAPSHOT_LIST_INTERNAL):
